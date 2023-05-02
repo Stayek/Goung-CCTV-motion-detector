@@ -1,0 +1,178 @@
+<html>
+  <head>
+    <title>Webcam motion detector</title>
+	<script>
+		function doRefresh() {
+			const url = 'http://localhost:5000/pageRefresh'
+			fetch(url)
+			.then(response => response.json())  
+			.then(json => {
+				if (json == true){ 
+					location.reload();
+				}
+			})
+		}
+		setInterval(function() {doRefresh()}, 1300); 
+	</script>
+	<style>
+		body {
+				margin: 0;
+			background-color: rgb(230, 230, 230);
+		}
+
+		.list{
+
+			width: 16%;
+			float:  left;
+			background-color: white;
+			padding-left: 2%;
+			padding-right: 2%;
+			margin-top: 0.5%;
+			overflow: scroll;
+			height: 90%;
+		 
+		}  
+
+
+		.record{
+			width: 100%;
+			background-color: rgb(230, 230, 230);
+			border-color:  black;
+			border-style: solid;
+		  border-width: 1px;
+			margin-top: 3%;
+			padding: 3%;
+			cursor: pointer;
+		}
+
+		.recordT{
+			width: 50%;
+			float: left;
+		}
+
+		.recordTi{
+			width: 45%;
+
+			padding-left: 2%;
+			font-family: Arial, Helvetica, sans-serif;
+				padding-top: 5%;
+			font-size: 1em;
+
+			color: black;
+			float: left;
+			text-align: left;
+			
+				-ms-word-break: break-all;
+			word-break: break-all;
+			text-decoration: none;
+		}
+
+
+		.subTitle{
+			font-weight:  normal;
+			font-size: 1em;
+		}
+
+
+
+		footer > p{
+			text-align: center;
+			bottom: 1%;
+			width: 100%;
+		}
+
+		.stream{
+
+			width: 35%;
+			float: left;
+			padding: 2%;
+			padding-top: 0.5%;
+			background-color: white;
+			margin-top: 0.5%;
+			margin-right: 0.5%;
+			margin-left: 0.5%;
+
+			
+		}
+
+		.videoP{
+			width: 34%;
+			padding: 2%;
+			margin-top: 0.5%;
+			background-color: white;
+				padding-top: 0.3%;
+
+			margin-right: 0.5%;
+			float: left;
+			margin-left: 0.5%;
+		}
+	</style>
+  </head>
+
+  <body>
+  <div class="list">
+      <h1>recorded</h1>
+      {% for record in videosRecorded%}
+      <a href="{{url_for('videoPlay',nameOfVid=record.nameOfVid,VideoID=record.id)}}">
+        <button class= "record">
+            <img class= "recordT" src="{{ url_for('receiveThumb', nameOfVid=record.nameOfVid) }}">
+            <div class="recordTi" >
+             {{record.nameOfVid}}
+            </div>
+        </button>
+       </a>
+      {% endfor%}
+    </div>
+    <div class="stream">
+      <h1>Recording</h1>
+      <img width="100%" src="{{ url_for('liveStream') }}" alt="video">
+      <br>
+	  <br>
+	  <br>
+      <h3>Configuration</h3>
+      <form action="{{url_for('updateCfg')}}"method="POST"> 
+        <br>
+        <h4>Detection object</h4>
+        {% if isDetectVehicle %}
+        <input  type="checkbox" name="isDetectVehicle" checked>Vehicle </input>
+        {% else %}
+        <input  type="checkbox" name="isDetectVehicle" >Vehicle </input>
+        {% endif %}
+        {% if isDetectPerson %}
+        <input  type="checkbox" name="isDetectPerson" checked> Person </input>
+        {% else %}
+        <input  type="checkbox" name="isDetectPerson" > Person </input>
+        {% endif %}
+        <br><br>
+        <input class ="Button" type="submit" name="submit" value="Save Settings"/>
+      </form>
+    </div>
+   
+    <div class="videoP">
+      <h2> player<h2>
+      {% if nameOfVid != 'data:,' %}
+        <video  width="100%" autoplay="autoplay" controls="controls" preload="preload">
+          <source src= "{{ url_for('static', filename=nameOfVid+'.'+formatOfVid) }}#t=0.1" type="video/{{formatOfVid}}"></source>
+        </video> 
+ 
+        </br></br>
+       
+	  <a  href = "{{url_for('download_video',nameOfVid=nameOfVid,formatOfVid=formatOfVid)}}"> 
+	  Download
+	  </a> 
+	  <br>
+	  <a href = "{{url_for('deleteVid',VideoID=curVidID)}}"> 
+	  Delete </a> 
+    
+      {% endif %}
+
+      
+    </div>
+
+     
+
+  </body>
+  <footer>
+    <p> © Emal Sarif</p>
+  </footer>
+</html>
